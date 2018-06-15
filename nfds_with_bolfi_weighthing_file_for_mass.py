@@ -173,8 +173,8 @@ def get_time():
 #             else:
 
 if __name__ == '__main__':
-    fitting_steps = 400
-    samples = 500000
+    fitting_steps = 200
+    samples = 100000
 
     current_time = get_time()
     logger.debug('Started at {}'.format(current_time))
@@ -200,7 +200,7 @@ if __name__ == '__main__':
     ######################################
 
     # rejection
-    initial_evidence = 50
+    initial_evidence = 5
     rej = elfi.Rejection(nfds_simulator, batch_size = 1)
     n_rejection_samples = 2*initial_evidence
     rej_result = rej.sample(n_samples=n_rejection_samples,quantile = 1)
@@ -210,6 +210,9 @@ if __name__ == '__main__':
     noise = 0.01
     n_evidence = 10
     parameter_bounds = {'v':(-3.5, -0.1), 's':(-6, -0.1), 'i':(-3.5, -1)}
+    for i in cog_catergories_dict:
+        parameter_bounds[i] = (0.01, 0.99)
+
     try:
         with open(prefix + '_run_details.txt', 'w') as a:
             a.write('parameter_bounds: ' + str(parameter_bounds) + '\n')
