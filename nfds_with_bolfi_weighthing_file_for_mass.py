@@ -69,10 +69,11 @@ def create_model(shell_command,m, cog_catergories_dict):
 
         #
         for i in cog_catergories_dict:
-            elfi.Prior('uniform', 0.01, 0.98, model = m, name = i)
+            if i != 'BCA':
+                elfi.Prior('uniform', 0.01, 0.98, model = m, name = i)
 
         # create central node that runs the model, I think
-        nfds_simulator = elfi.Simulator(nfds_sim_vector, m['v'], m['s'], m['i'],  m['Bacteriocin'], m['BCA'], m['CPS_BCA'], m['CPS'],
+        nfds_simulator = elfi.Simulator(nfds_sim_vector, m['v'], m['s'], m['i'],  m['Bacteriocin'], m['CPS_BCA'], m['CPS'],
                                         m['GeneralMetabolism'], m['GeneralMetabolism_NutrientTransporters'], m['NutrientTransporters'],
                                         m['Prophage_ICE_PRCI_ProphageRemnant_OtherMGE'], m['Resistance'],
                                         name = 'nfds', observed = 0.0)
@@ -115,14 +116,20 @@ def prepare_inputs(*inputs, **kwinputs):
     with open('cog_categories_dict.pkl', 'rb') as a:
         cogs_dict = pickle.load(a)
     all_categories_list = list(cogs_dict.keys())
+    all_categories_list.remove('BCA')
 
     with open('weighting_file.tsv', 'w') as a:
+        cogs_list = cogs_dict['BCA']
+        for cog in cogs_list:
+            a.write(cog + '\t' + '1' + '\n')
+
         for i in cogs_dict:
-    	    for j in all_categories_list:
-                    if i == j:
-                        for cog in cogs_dict[i]:
-                            position_in_inputs = all_categories_list.index(j) + 3
-                            a.write(cog + '\t' + str(input_list[position_in_inputs]) + '\n')
+            if i != 'BCA':
+        	    for j in all_categories_list:
+                        if i == j:
+                            for cog in cogs_dict[i]:
+                                position_in_inputs = all_categories_list.index(j) + 3
+                                a.write(cog + '\t' + str(input_list[position_in_inputs]) + '\n')
 
     input_list = input_list[:3]
     input_list.append('weighting_file.tsv')
@@ -211,7 +218,8 @@ if __name__ == '__main__':
     n_evidence = 10
     parameter_bounds = {'v':(-3.5, -0.1), 's':(-6, -0.1), 'i':(-3.5, -1)}
     for i in cog_catergories_dict:
-        parameter_bounds[i] = (0.01, 0.99)
+        if i != 'BCA':
+            parameter_bounds[i] = (0.01, 0.99)
 
     try:
         with open(prefix + '_run_details.txt', 'w') as a:
